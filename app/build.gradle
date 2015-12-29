@@ -28,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.0'
     compile group: 'de.greenrobot', name: 'greendao', version: '2.1.0'
+    compile 'com.jakewharton:butterknife:7.0.1'
 }

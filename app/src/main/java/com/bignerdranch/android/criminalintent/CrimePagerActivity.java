@@ -13,12 +13,16 @@ import com.bignerdranch.android.criminalintent.model.Crime;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class CrimePagerActivity extends AppCompatActivity
         implements CrimeFragment.Callbacks {
     private static final String EXTRA_CRIME_ID =
             "com.bignerdranch.android.criminalintent.crime_id";
 
-    private ViewPager mViewPager;
+    @Bind(R.id.activity_crime_pager_view_pager)
+    protected ViewPager mViewPager;
     private List<Crime> mCrimes;
 
     public static Intent newIntent(Context packageContext, long crimeId) {
@@ -34,7 +38,7 @@ public class CrimePagerActivity extends AppCompatActivity
 
         long crimeId = getIntent().getLongExtra(EXTRA_CRIME_ID, 0);
 
-        mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
+        ButterKnife.bind(this);
 
         mCrimes = CrimeLab.get(this).getCrimes();
         FragmentManager fragmentManager = getSupportFragmentManager();

@@ -17,14 +17,17 @@ import android.widget.TextView;
 
 import com.bignerdranch.android.criminalintent.model.Crime;
 
-import java.util.Date;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class CrimeListFragment extends Fragment {
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
-    private RecyclerView mCrimeRecyclerView;
+    @Bind(R.id.crime_recycler_view)
+    protected RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
     private Callbacks mCallbacks;
@@ -53,8 +56,7 @@ public class CrimeListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
-        mCrimeRecyclerView = (RecyclerView) view
-                .findViewById(R.id.crime_recycler_view);
+        ButterKnife.bind(this, view);
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (savedInstanceState != null) {
@@ -144,12 +146,15 @@ public class CrimeListFragment extends Fragment {
         updateSubtitle();
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder 
+    protected class CrimeHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
 
-        private TextView mTitleTextView;
-        private TextView mDateTextView;
-        private CheckBox mSolvedCheckBox;
+        @Bind(R.id.list_item_crime_title_text_view)
+        protected TextView mTitleTextView;
+        @Bind(R.id.list_item_crime_date_text_view)
+        protected TextView mDateTextView;
+        @Bind(R.id.list_item_crime_solved_check_box)
+        protected CheckBox mSolvedCheckBox;
 
         private Crime mCrime;
 
@@ -157,9 +162,7 @@ public class CrimeListFragment extends Fragment {
             super(itemView);
             itemView.setOnClickListener(this);
 
-            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
-            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
-            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
+            ButterKnife.bind(this, itemView);
         }
 
         public void bindCrime(Crime crime) {
