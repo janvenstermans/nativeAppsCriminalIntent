@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
@@ -59,7 +60,8 @@ public class CrimeFragment extends Fragment {
     @Bind(R.id.crime_suspect)
     protected Button mSuspectButton;
     private ImageButton mPhotoButton;
-    private ImageView mPhotoView;
+    @Bind(R.id.crime_photo)
+    protected ImageView mPhotoView;
     private Callbacks mCallbacks;
 
     /**
@@ -155,9 +157,7 @@ public class CrimeFragment extends Fragment {
             }
         });
 
-
-
-
+        updatePhotoView();
         return v;
     }
 
@@ -227,6 +227,20 @@ public class CrimeFragment extends Fragment {
         } else {
             Log.i(LOG_TAG, "start contact picker intent");
             startActivityForResult(contactPickerIntent, REQUEST_CONTACT);
+        }
+    }
+
+
+    @OnClick(R.id.crime_camera)
+    public void onChoosePhoto() {
+        // see http://developer.android.com/training/camera/photobasics.html
+        Intent photoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (photoIntent.resolveActivity(getActivity().getPackageManager()) == null) {
+            Toast.makeText(getContext(), "Cannot select photo", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.i(LOG_TAG, "start photo picker intent");
+            photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mPhotoFile));
+            startActivityForResult(photoIntent, REQUEST_PHOTO);
         }
     }
 

@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bignerdranch.android.criminalintent.model.Crime;
 
+import java.util.Date;
 import java.util.List;
 
 import butterknife.Bind;
@@ -104,6 +105,8 @@ public class CrimeListFragment extends Fragment {
         switch (item.getItemId()) {
             case R.id.menu_item_new_crime:
                 Crime crime = new Crime();
+                crime.setDate(new Date());
+                crime.setSolved(false);
                 CrimeLab.get(getActivity()).addCrime(crime);
                 updateUI();
                 mCallbacks.onCrimeSelected(crime);
