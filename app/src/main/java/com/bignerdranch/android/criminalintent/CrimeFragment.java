@@ -1,8 +1,10 @@
 package com.bignerdranch.android.criminalintent;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +26,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bignerdranch.android.criminalintent.model.Crime;
 
@@ -31,11 +35,13 @@ import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String LOG_TAG = "CrimeFragment";
 
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_CONTACT = 1;
@@ -50,7 +56,8 @@ public class CrimeFragment extends Fragment {
     @Bind(R.id.crime_solved)
     protected CheckBox mSolvedCheckbox;
     private Button mReportButton;
-    private Button mSuspectButton;
+    @Bind(R.id.crime_suspect)
+    protected Button mSuspectButton;
     private ImageButton mPhotoButton;
     private ImageView mPhotoView;
     private Callbacks mCallbacks;
@@ -156,17 +163,22 @@ public class CrimeFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(LOG_TAG, String.format("CrimeFragment's onActivityResult called with request code %d " +
+                "and result code %d", requestCode, resultCode));
         if (resultCode != Activity.RESULT_OK) {
+            Log.i(LOG_TAG, String.format("activity result not ok"));
             return;
         }
 
         if (requestCode == REQUEST_DATE) {
+            Log.i(LOG_TAG, String.format("activity response of date request"));
             Date date = (Date) data
                     .getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateCrime();
             updateDate();
         } else if (requestCode == REQUEST_CONTACT && data != null) {
+            Log.i(LOG_TAG, String.format("activity response of contact request"));
             Uri contactUri = data.getData();
             // Specify which fields you want your query to return
             // values for.
@@ -190,6 +202,7 @@ public class CrimeFragment extends Fragment {
                 c.moveToFirst();
 
                 String suspect = c.getString(0);
+                Log.i(LOG_TAG, String.format("contact name of suspect is %s", suspect));
                 mCrime.setSuspect(suspect);
                 updateCrime();
                 mSuspectButton.setText(suspect);
@@ -197,8 +210,23 @@ public class CrimeFragment extends Fragment {
                 c.close();
             }
         } else if (requestCode == REQUEST_PHOTO) {
+            Log.i(LOG_TAG, String.format("activity response of photo request"));
             updateCrime();
             updatePhotoView();
+        }
+    }
+
+    @OnClick(R.id.crime_suspect)
+    public void onChooseSuspect() {
+        // see http://code.tutsplus.com/tutorials/android-essentials-using-the-contact-picker--mobile-2017
+        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        PackageManager pm = getActivity().getPackageManager();
+        ComponentName cn = contactPickerIntent.resolveActivity(pm);
+        if (cn == null) {
+            Toast.makeText(getContext(), "Cannot pick contact", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.i(LOG_TAG, "start contact picker intent");
+            startActivityForResult(contactPickerIntent, REQUEST_CONTACT);
         }
     }
 
