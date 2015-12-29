@@ -3,13 +3,11 @@ package com.bignerdranch.android.criminalintent;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
@@ -26,9 +24,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.bignerdranch.android.criminalintent.model.Crime;
+
 import java.io.File;
 import java.util.Date;
-import java.util.UUID;
 
 public class CrimeFragment extends Fragment {
 
@@ -57,9 +56,9 @@ public class CrimeFragment extends Fragment {
         void onCrimeUpdated(Crime crime);
     }
 
-    public static CrimeFragment newInstance(UUID crimeId) {
+    public static CrimeFragment newInstance(long crimeId) {
         Bundle args = new Bundle();
-        args.putSerializable(ARG_CRIME_ID, crimeId);
+        args.putLong(ARG_CRIME_ID, crimeId);
 
         CrimeFragment fragment = new CrimeFragment();
         fragment.setArguments(args);
@@ -75,7 +74,7 @@ public class CrimeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CRIME_ID);
+        long crimeId = getArguments().getLong(ARG_CRIME_ID);
         mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
         mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
     }
@@ -136,7 +135,7 @@ public class CrimeFragment extends Fragment {
         });
 
         mSolvedCheckbox = (CheckBox) v.findViewById(R.id.crime_solved);
-        mSolvedCheckbox.setChecked(mCrime.isSolved());
+        mSolvedCheckbox.setChecked(mCrime.getSolved());
         mSolvedCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -210,7 +209,7 @@ public class CrimeFragment extends Fragment {
 
     private String getCrimeReport() {
         String solvedString = null;
-        if (mCrime.isSolved()) {
+        if (mCrime.getSolved()) {
             solvedString = getString(R.string.crime_report_solved);
         } else {
             solvedString = getString(R.string.crime_report_unsolved);

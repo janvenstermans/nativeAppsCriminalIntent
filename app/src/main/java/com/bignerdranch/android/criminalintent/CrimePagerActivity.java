@@ -9,8 +9,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.bignerdranch.android.criminalintent.model.Crime;
+
 import java.util.List;
-import java.util.UUID;
 
 public class CrimePagerActivity extends AppCompatActivity
         implements CrimeFragment.Callbacks {
@@ -20,7 +21,7 @@ public class CrimePagerActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private List<Crime> mCrimes;
 
-    public static Intent newIntent(Context packageContext, UUID crimeId) {
+    public static Intent newIntent(Context packageContext, long crimeId) {
         Intent intent = new Intent(packageContext, CrimePagerActivity.class);
         intent.putExtra(EXTRA_CRIME_ID, crimeId);
         return intent;
@@ -31,8 +32,7 @@ public class CrimePagerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
 
-        UUID crimeId = (UUID) getIntent()
-                .getSerializableExtra(EXTRA_CRIME_ID);
+        long crimeId = getIntent().getLongExtra(EXTRA_CRIME_ID, 0);
 
         mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
 
