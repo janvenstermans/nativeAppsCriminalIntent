@@ -235,7 +235,6 @@ public class CrimeFragment extends Fragment {
         }
     }
 
-
     @OnClick(R.id.crime_camera)
     public void onChoosePhoto() {
         // see http://developer.android.com/training/camera/photobasics.html
@@ -246,6 +245,27 @@ public class CrimeFragment extends Fragment {
             Log.i(LOG_TAG, "start photo picker intent");
             photoIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mPhotoFile));
             startActivityForResult(photoIntent, REQUEST_PHOTO);
+        }
+    }
+
+    @OnClick(R.id.crime_report)
+    public void onSendRepport() {
+        // see http://www.tutorialspoint.com/android/android_sending_email.htm
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.setType("text/plain");
+        String[] TO = {""};
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, TO);
+//        emailIntent.putExtra(Intent.EXTRA_CC, CC);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Report of Crime " + mCrime.getId());
+        emailIntent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+        // the attachment
+        emailIntent .putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mPhotoFile.getPath()));
+        if (emailIntent.resolveActivity(getActivity().getPackageManager()) == null) {
+            Toast.makeText(getContext(), "Cannot send email", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.i(LOG_TAG, "start sending email picker intent");
+            startActivity(Intent.createChooser(emailIntent, "send mail..."));
         }
     }
 
