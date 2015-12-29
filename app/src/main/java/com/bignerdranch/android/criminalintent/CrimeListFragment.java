@@ -33,6 +33,8 @@ public class CrimeListFragment extends Fragment {
     private boolean mSubtitleVisible;
     private Callbacks mCallbacks;
 
+    private ICrimeLab crimeLab;
+
     /**
      * Required interface for hosting activities.
      */
@@ -44,6 +46,7 @@ public class CrimeListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        crimeLab = getICrimeLab();
     }
 
     @Override
@@ -104,10 +107,8 @@ public class CrimeListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_crime:
-                Crime crime = new Crime();
-                crime.setDate(new Date());
-                crime.setSolved(false);
-                CrimeLab.get(getActivity()).addCrime(crime);
+                Crime crime = createEmtyCrime();
+                crimeLab.addCrime(crime);
                 updateUI();
                 mCallbacks.onCrimeSelected(crime);
                 return true;
@@ -122,7 +123,6 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void updateSubtitle() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
         String subtitle = getString(R.string.subtitle_format, crimeCount);
 
@@ -135,7 +135,6 @@ public class CrimeListFragment extends Fragment {
     }
 
     public void updateUI() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
         if (mAdapter == null) {
@@ -159,7 +158,7 @@ public class CrimeListFragment extends Fragment {
         @Bind(R.id.list_item_crime_solved_check_box)
         protected CheckBox mSolvedCheckBox;
 
-        private Crime mCrime;
+        public Crime mCrime;
 
         public CrimeHolder(View itemView) {
             super(itemView);
@@ -210,5 +209,16 @@ public class CrimeListFragment extends Fragment {
         public void setCrimes(List<Crime> crimes) {
             mCrimes = crimes;
         }
+    }
+
+    private ICrimeLab getICrimeLab() {
+        return ((CrimeIntentApplication) getActivity().getApplication()).crimeLab;
+    }
+
+    public static Crime createEmtyCrime() {
+        Crime crime = new Crime();
+        crime.setDate(new Date());
+        crime.setSolved(false);
+        return crime;
     }
 }

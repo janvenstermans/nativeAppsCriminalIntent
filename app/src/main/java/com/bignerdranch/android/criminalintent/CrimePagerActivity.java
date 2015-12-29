@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 
 public class CrimePagerActivity extends AppCompatActivity
         implements CrimeFragment.Callbacks {
-    private static final String EXTRA_CRIME_ID =
+    public static final String EXTRA_CRIME_ID =
             "com.bignerdranch.android.criminalintent.crime_id";
 
     @Bind(R.id.activity_crime_pager_view_pager)
@@ -40,7 +40,7 @@ public class CrimePagerActivity extends AppCompatActivity
 
         ButterKnife.bind(this);
 
-        mCrimes = CrimeLab.get(this).getCrimes();
+        mCrimes = ((CrimeIntentApplication) getApplication()).crimeLab.getCrimes();
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
 
@@ -58,7 +58,8 @@ public class CrimePagerActivity extends AppCompatActivity
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
 
             @Override
             public void onPageSelected(int position) {
@@ -69,7 +70,8 @@ public class CrimePagerActivity extends AppCompatActivity
             }
 
             @Override
-            public void onPageScrollStateChanged(int state) { }
+            public void onPageScrollStateChanged(int state) {
+            }
         });
 
         for (int i = 0; i < mCrimes.size(); i++) {

@@ -9,7 +9,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "com.tile.janv.criminalintent"
+        applicationId "com.bignerdranch.android.criminalintent"
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
@@ -21,6 +21,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions {
+        abortOnError false
+    }
+
+//    for testing robolectric shadow
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -30,4 +37,5 @@ dependencies {
     compile group: 'de.greenrobot', name: 'greendao', version: '2.1.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    testCompile 'org.robolectric:robolectric:3.0'
 }
