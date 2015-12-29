@@ -6,7 +6,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -30,11 +29,13 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bignerdranch.android.criminalintent.model.Crime;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.Date;
 
 import butterknife.Bind;
+import butterknife.BindDimen;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -63,6 +64,10 @@ public class CrimeFragment extends Fragment {
     @Bind(R.id.crime_photo)
     protected ImageView mPhotoView;
     private Callbacks mCallbacks;
+
+    // int (for pixel size) or float (for exact value) field
+    @BindDimen(R.dimen.crime_photo_width) int crimePhotoWidthPx;
+    @BindDimen(R.dimen.crime_photo_heigth) int crimePhotoHeightPx;
 
     /**
      * Required interface for hosting activities.
@@ -274,12 +279,9 @@ public class CrimeFragment extends Fragment {
     }
 
     private void updatePhotoView() {
-        if (mPhotoFile == null || !mPhotoFile.exists()) {
-            mPhotoView.setImageDrawable(null);
-        } else {
-            Bitmap bitmap = PictureUtils.getScaledBitmap(
-                    mPhotoFile.getPath(), getActivity());
-            mPhotoView.setImageBitmap(bitmap);
-        }
+        Picasso.with(getContext())
+                .load(mPhotoFile)
+                .resize(crimePhotoWidthPx, crimePhotoHeightPx)
+                .into(mPhotoView);
     }
 }
