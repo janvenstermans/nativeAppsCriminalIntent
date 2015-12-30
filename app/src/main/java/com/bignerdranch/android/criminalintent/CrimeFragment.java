@@ -36,6 +36,7 @@ import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.BindDimen;
+import butterknife.BindString;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -51,23 +52,26 @@ public class CrimeFragment extends Fragment {
 
     private Crime mCrime;
     private File mPhotoFile;
+
     @Bind(R.id.crime_title)
     protected EditText mTitleField;
     @Bind(R.id.crime_date)
     protected Button mDateButton;
     @Bind(R.id.crime_solved)
     protected CheckBox mSolvedCheckbox;
-    private Button mReportButton;
     @Bind(R.id.crime_suspect)
     protected Button mSuspectButton;
-    private ImageButton mPhotoButton;
     @Bind(R.id.crime_photo)
     protected ImageView mPhotoView;
+
     private Callbacks mCallbacks;
 
+    @BindString(R.string.crime_suspect_text) String suspectDefaultString;
     // int (for pixel size) or float (for exact value) field
     @BindDimen(R.dimen.crime_photo_width) int crimePhotoWidthPx;
     @BindDimen(R.dimen.crime_photo_heigth) int crimePhotoHeightPx;
+
+    private ICrimeLab crimeLab;
 
     /**
      * Required interface for hosting activities.
@@ -95,16 +99,16 @@ public class CrimeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         long crimeId = getArguments().getLong(ARG_CRIME_ID);
-        mCrime = CrimeLab.get(getActivity()).getCrime(crimeId);
-        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
+        crimeLab = getICrimeLab();
+        mCrime = crimeLab.getCrime(crimeId);
+        mPhotoFile = crimeLab.getPhotoFile(mCrime);
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        CrimeLab.get(getActivity())
-                .updateCrime(mCrime);
+        crimeLab.updateCrime(mCrime);
     }
 
     @Override
@@ -163,6 +167,7 @@ public class CrimeFragment extends Fragment {
         });
 
         updatePhotoView();
+        updateSuspect();
         return v;
     }
 
@@ -210,7 +215,7 @@ public class CrimeFragment extends Fragment {
                 Log.i(LOG_TAG, String.format("contact name of suspect is %s", suspect));
                 mCrime.setSuspect(suspect);
                 updateCrime();
-                mSuspectButton.setText(suspect);
+                updateSuspect();
             } finally {
                 c.close();
             }
@@ -249,7 +254,7 @@ public class CrimeFragment extends Fragment {
     }
 
     @OnClick(R.id.crime_report)
-    public void onSendRepport() {
+    public void onSendReport() {
         // see http://www.tutorialspoint.com/android/android_sending_email.htm
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setData(Uri.parse("mailto:"));
@@ -260,7 +265,9 @@ public class CrimeFragment extends Fragment {
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Report of Crime " + mCrime.getId());
         emailIntent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
         // the attachment
-        emailIntent .putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mPhotoFile.getPath()));
+        if(mPhotoFile != null) {
+            emailIntent .putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + mPhotoFile.getPath()));
+        }
         if (emailIntent.resolveActivity(getActivity().getPackageManager()) == null) {
             Toast.makeText(getContext(), "Cannot send email", Toast.LENGTH_SHORT).show();
         } else {
@@ -270,12 +277,21 @@ public class CrimeFragment extends Fragment {
     }
 
     private void updateCrime() {
-        CrimeLab.get(getActivity()).updateCrime(mCrime);
+        crimeLab.updateCrime(mCrime);
         mCallbacks.onCrimeUpdated(mCrime);
     }
 
     private void updateDate() {
         mDateButton.setText(mCrime.getDate().toString());
+    }
+
+    private void updateSuspect() {
+        String suspect = mCrime.getSuspect();
+        if (suspect != null && !suspect.isEmpty()) {
+            mSuspectButton.setText(suspect);
+        } else {
+            mSuspectButton.setText(suspectDefaultString);
+        }
     }
 
     private String getCrimeReport() {
@@ -303,5 +319,9 @@ public class CrimeFragment extends Fragment {
                 .load(mPhotoFile)
                 .resize(crimePhotoWidthPx, crimePhotoHeightPx)
                 .into(mPhotoView);
+    }
+
+    private ICrimeLab getICrimeLab() {
+        return ((CrimeIntentApplication) getActivity().getApplication()).crimeLab;
     }
 }
